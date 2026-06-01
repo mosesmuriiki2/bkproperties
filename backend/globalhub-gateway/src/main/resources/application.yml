@@ -1,0 +1,165 @@
+server:
+  port: 9096
+
+spring:
+  application:
+    name: api-gateway
+  
+  # Import module configuration
+  config:
+    import: optional:classpath:modules.yml
+  
+  # CORS Configuration for Spring Cloud Gateway
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+              - "http://localhost:3000"
+              - "http://127.0.0.1:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+              - HEAD
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            exposedHeaders:
+              - Authorization
+              - Content-Type
+              - X-Total-Count
+            maxAge: 3600
+      routes:
+        # Core Services (Always Enabled)
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/**
+        
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+        
+        - id: vendor-service
+          uri: lb://VENDOR-SERVICE
+          predicates:
+            - Path=/api/vendors/**
+        
+        # Property Service (Enabled by default)
+        - id: property-service
+          uri: lb://PROPERTY-SERVICE
+          predicates:
+            - Path=/api/properties/**
+        
+        - id: property-inquiries
+          uri: lb://PROPERTY-SERVICE
+          predicates:
+            - Path=/api/inquiries/**
+        
+        - id: property-availability
+          uri: lb://PROPERTY-SERVICE
+          predicates:
+            - Path=/api/availability/**
+        
+        - id: property-bookings
+          uri: lb://PROPERTY-SERVICE
+          predicates:
+            - Path=/api/bookings/**
+        
+        # Optional Services (Disabled by default - enable in modules.yml)
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/products/**
+          metadata:
+            module: products
+        
+        - id: hotel-service
+          uri: lb://HOTEL-SERVICE
+          predicates:
+            - Path=/api/hotels/**
+          metadata:
+            module: hotels
+        
+        - id: tour-service
+          uri: lb://TOUR-SERVICE
+          predicates:
+            - Path=/api/tours/**
+          metadata:
+            module: tours
+        
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/**
+          metadata:
+            module: orders
+        
+        - id: payment-service
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/payments/**
+          metadata:
+            module: payments
+        
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/api/notifications/**
+          metadata:
+            module: notifications
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7071/eureka/
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+# Module Configuration
+modules:
+  products:
+    enabled: false
+    description: "E-commerce product marketplace"
+  
+  hotels:
+    enabled: false
+    description: "Hotel booking system"
+  
+  properties:
+    enabled: true
+    description: "Real estate and land listings"
+  
+  tours:
+    enabled: false
+    description: "Tour packages and bookings"
+  
+  orders:
+    enabled: false
+    description: "Order management system"
+  
+  payments:
+    enabled: false
+    description: "Payment processing"
+  
+  vendors:
+    enabled: true
+    description: "Vendor management (required for properties)"
+  
+  users:
+    enabled: true
+    description: "User profile management (always required)"
+  
+  notifications:
+    enabled: false
+    description: "Notification service"
+

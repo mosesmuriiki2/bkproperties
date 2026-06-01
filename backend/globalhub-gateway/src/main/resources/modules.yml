@@ -1,0 +1,39 @@
+# Module Configuration
+# Set enabled: true to activate a module, false to disable it
+
+modules:
+  products:
+    enabled: false
+    description: "E-commerce product marketplace"
+  
+  hotels:
+    enabled: false
+    description: "Hotel booking system"
+  
+  properties:
+    enabled: true
+    description: "Real estate and land listings"
+  
+  tours:
+    enabled: false
+    description: "Tour packages and bookings"
+  
+  orders:
+    enabled: false
+    description: "Order management system"
+  
+  payments:
+    enabled: false
+    description: "Payment processing"
+  
+  vendors:
+    enabled: true
+    description: "Vendor management (required for properties)"
+  
+  users:
+    enabled: true
+    description: "User profile management (always required)"
+  
+  notifications:
+    enabled: false
+    description: "Notification service"

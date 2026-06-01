@@ -1,0 +1,22 @@
+# NiaHub - Property Marketplace Kenya
+# robots.txt
+
+User-agent: *
+Allow: /
+Allow: /properties
+Allow: /property/*
+Allow: /about
+Allow: /contact
+
+Disallow: /admin
+Disallow: /AdminLogin
+Disallow: /AdminDashboard
+Disallow: /VendorDashboard
+Disallow: /ConsumerDashboard
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://niahub.co.ke/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1

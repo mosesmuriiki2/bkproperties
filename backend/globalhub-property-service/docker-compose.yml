@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  property-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: globalhub-property-service
+    ports:
+      - "7086:7086"
+    volumes:
+      # Mount uploads directory for persistent storage
+      - ./uploads:/app/uploads
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/globalhub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=globalhubuser
+      - SPRING_DATASOURCE_PASSWORD=Ashihundu@2003
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://host.docker.internal:7071/eureka/
+      - APP_UPLOAD_DIR=/app/uploads
+      - APP_BASE_URL=http://localhost:7086
+    networks:
+      - globalhub-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7086/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 60s
+
+networks:
+  globalhub-network:
+    driver: bridge

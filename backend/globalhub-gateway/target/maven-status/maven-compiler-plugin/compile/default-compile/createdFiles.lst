@@ -1,0 +1,6 @@
+com/globalhub/gateway/config/SecurityConfig.class
+com/globalhub/gateway/config/CorsConfig.class
+com/globalhub/gateway/controller/ModuleController.class
+com/globalhub/gateway/GatewayApplication.class
+com/globalhub/gateway/config/ModuleConfig$ModuleSettings.class
+com/globalhub/gateway/config/ModuleConfig.class

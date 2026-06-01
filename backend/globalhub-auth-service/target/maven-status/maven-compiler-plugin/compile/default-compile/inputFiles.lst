@@ -1,0 +1,12 @@
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/dto/LoginRequest.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/AuthServiceApplication.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/entity/User.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/dto/RegisterRequest.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/service/AuthService.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/controller/AuthController.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/repository/UserRepository.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/config/SecurityConfig.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/service/JwtService.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/entity/UserRole.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/dto/AuthResponse.java
+/home/psd/Downloads/GlobalHub/backend/globalhub-auth-service/src/main/java/com/globalhub/auth/config/CorsConfig.java

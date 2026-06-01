@@ -1,0 +1,100 @@
+# NiaHubX Production Docker Compose Configuration
+# Override file for production deployment
+
+version: '3.8'
+
+services:
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ChangeThisPassword}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ChangeThisPassword}
+    volumes:
+      - /data/niahubx/mysql:/var/lib/mysql
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  eureka:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  auth-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JWT_SECRET: ${JWT_SECRET:-ChangeThisSecretKey}
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  property-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - /data/niahubx/uploads/properties:/app/uploads
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+  vendor-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - /data/niahubx/uploads/vendors:/app/uploads/vendor-documents
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  gateway:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+  frontend:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M

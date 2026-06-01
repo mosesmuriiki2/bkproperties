@@ -1,0 +1,331 @@
+﻿import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Search, MapPin, Star, ArrowRight, CheckCircle, Globe, Zap, Users, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import dataService from "@/services/dataService";
+import { useBranding } from "@/contexts/BrandingContext";
+
+export default function Home() {
+  const { branding } = useBranding();
+  const [categories, setCategories] = useState([]);
+  const [featuredListings, setFeaturedListings] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategory, setSearchCategory] = useState("all");
+  const [searchLocation, setSearchLocation] = useState("");
+  const [priceRange, setPriceRange] = useState("");
+
+  // Load data on mount
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [categoriesData, listingsData, statsData] = await Promise.all([
+          dataService.getCategories(),
+          dataService.getFeaturedListings(),
+          dataService.getStats(),
+        ]);
+        setCategories(categoriesData);
+        setFeaturedListings(listingsData);
+        setStats(statsData);
+      } catch (error) {
+        console.error("Failed to load home data:", error);
+        // Fallback data will be used from dataService
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", searchQuery);
+    if (searchCategory !== "all") params.set("category", searchCategory);
+    if (searchLocation) params.set("location", searchLocation);
+    if (priceRange) params.set("price", priceRange);
+    window.location.href = createPageUrl("Search") + "?" + params.toString();
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading marketplace...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Hero */}
+      <section className="relative min-h-[88vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1600&q=80" alt="Hero" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 via-gray-900/60 to-gray-900/80" />
+        </div>
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto w-full">
+          <Badge className="mb-6 bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-sm px-4 py-1.5">
+            <span className="mr-1.5">{branding.logo}</span> Global Marketplace â€” Land, Homes, Cars, Hotels & Tours
+          </Badge>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+            Find Anything,{" "}<span className="text-emerald-400">Anywhere.</span>
+          </h1>
+          <p className="text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Connect with verified vendors worldwide. Buy, rent, book with confidence on the world's fastest-growing aggregator marketplace.
+          </p>
+
+          {/* Search box */}
+          <form onSubmit={handleSearch} className="bg-white rounded-2xl shadow-2xl p-3 max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-2">
+              <div className="flex items-center gap-2 flex-1 px-3 border-r border-gray-200">
+                <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+                <input type="text" placeholder="Location (e.g. Nairobi, Kenya)" className="w-full outline-none text-gray-700 text-sm bg-transparent py-2" value={searchLocation} onChange={e => setSearchLocation(e.target.value)} />
+              </div>
+              <div className="flex items-center gap-2 flex-1 px-3 border-r border-gray-200">
+                <select className="w-full outline-none text-gray-700 text-sm bg-transparent py-2" value={searchCategory} onChange={e => setSearchCategory(e.target.value)}>
+                  <option value="all">All Categories</option>
+                  <option value="hotels">Hotels & Lodges</option>
+                  <option value="tours">Tours & Adventures</option>
+                  <option value="cars_sale">Cars for Sale</option>
+                  <option value="cars_hire">Cars for Hire</option>
+                  <option value="houses_sale">Houses for Sale</option>
+                  <option value="houses_rent">Houses for Rent</option>
+                  <option value="land">Land & Plots</option>
+                  <option value="tourist_vehicles">Tourist Vehicles</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2 flex-1 px-3 border-r border-gray-200">
+                <select className="w-full outline-none text-gray-700 text-sm bg-transparent py-2" value={priceRange} onChange={e => setPriceRange(e.target.value)}>
+                  <option value="">Any Price</option>
+                  <option value="0-500">Under USD 500</option>
+                  <option value="500-5000">USD 500 â€“ 5,000</option>
+                  <option value="5000-50000">USD 5,000 â€“ 50,000</option>
+                  <option value="50000+">USD 50,000+</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2 flex-1 px-3">
+                <Search className="w-4 h-4 text-gray-400 shrink-0" />
+                <input type="text" placeholder='Search keyword...' className="w-full outline-none text-gray-700 text-sm bg-transparent py-2" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+              </div>
+              <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 rounded-xl font-semibold shrink-0">
+                <Search className="w-4 h-4 mr-2" /> Search
+              </Button>
+            </div>
+          </form>
+
+          {/* Quick tags */}
+          <div className="flex flex-wrap justify-center gap-2 mt-5">
+            {["Masai Mara Safari", "Hotels in Nairobi", "Cars for hire", "Land in Karen", "Beach Houses"].map(tag => (
+              <button key={tag} className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm hover:bg-white/20 transition-colors">
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/50">
+          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center pt-1.5">
+            <div className="w-1 h-2 bg-white/50 rounded-full" />
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="bg-emerald-600">
+        <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {stats.map((s) => (
+            <div key={s.label}>
+              <div className="text-3xl md:text-4xl font-extrabold text-white">{s.value}</div>
+              <div className="text-emerald-100 text-sm mt-1">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Categories â€” with real background images */}
+      <section className="max-w-7xl mx-auto px-4 py-20">
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900">Browse by Category</h2>
+            <p className="text-gray-500 mt-1">Discover verified listings across every service</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {categories.map((cat) => (
+            <Link key={cat.label} to={createPageUrl(cat.page)}>
+              <div className="group relative rounded-2xl overflow-hidden cursor-pointer h-44 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <img src={cat.image} alt={cat.label} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10 group-hover:from-black/85 transition-colors" />
+                <div className="relative p-4 h-full flex flex-col justify-between">
+                  <span className="text-3xl drop-shadow">{cat.icon}</span>
+                  <div>
+                    <p className="text-white font-bold text-sm leading-tight">{cat.label}</p>
+                    <p className="text-white/70 text-xs mt-0.5">{cat.count} listings</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+          {/* Become a Vendor CTA */}
+          <Link to={createPageUrl("VendorPortal")}>
+            <div className="group relative rounded-2xl overflow-hidden cursor-pointer h-44 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-dashed border-emerald-300 bg-emerald-50 flex items-center justify-center">
+              <div className="text-center p-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center mx-auto mb-2 group-hover:bg-emerald-600 transition-colors">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <p className="text-emerald-700 font-bold text-sm">Become a Vendor</p>
+                <p className="text-emerald-500 text-xs mt-0.5">Join 340+ vendors</p>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Featured Listings */}
+      <section className="bg-gray-50 py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">Featured Listings</h2>
+              <p className="text-gray-500 mt-1">Hand-picked premium listings from across the marketplace</p>
+            </div>
+            <Link to={createPageUrl("Search")} className="flex items-center gap-1 text-emerald-600 font-semibold hover:underline text-sm">
+              View all <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredListings.map((listing) => (
+              <Link key={listing.id} to={createPageUrl(listing.page)}>
+                <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+                  <div className="relative h-52 overflow-hidden">
+                    <img src={listing.image} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-3 left-3 flex gap-2">
+                      <Badge className="bg-white/90 text-gray-700 text-xs">{listing.type}</Badge>
+                      <Badge className="bg-emerald-500 text-white text-xs">{listing.badge}</Badge>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <p className="font-bold text-gray-900 text-base leading-snug mb-1">{listing.title}</p>
+                    <p className="text-gray-500 text-sm flex items-center gap-1 mb-3">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-500" /> {listing.location}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-emerald-600 font-bold text-lg">{listing.price}</span>
+                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                        <span className="font-medium text-gray-700">{listing.rating}</span>
+                        <span>({listing.reviews})</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="max-w-7xl mx-auto px-4 py-20">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl font-bold text-gray-900">How {branding.logoText} Works</h2>
+          <p className="text-gray-500 mt-2 max-w-xl mx-auto">A seamless ecosystem connecting buyers with the best vendors across all services</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { icon: Search, step: "01", title: "Search & Discover", desc: "Browse thousands of verified listings across tours, hotels, cars, land, and properties in one place." },
+            { icon: CheckCircle, step: "02", title: "Compare & Select", desc: "Compare offerings, read reviews, check availability, and choose the best option for your needs." },
+            { icon: Zap, step: "03", title: "Book & Pay Securely", desc: "Book instantly and pay securely via M-Pesa or bank transfer. Receive instant confirmation." },
+          ].map((step) => (
+            <div key={step.step} className="text-center group">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-5 group-hover:bg-emerald-500 transition-colors">
+                <step.icon className="w-7 h-7 text-emerald-600 group-hover:text-white transition-colors" />
+              </div>
+              <span className="text-xs font-bold text-emerald-500 tracking-widest uppercase">Step {step.step}</span>
+              <h3 className="text-xl font-bold text-gray-900 mt-2 mb-3">{step.title}</h3>
+              <p className="text-gray-500 leading-relaxed text-sm">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Become a Vendor CTA */}
+      <section className="bg-gray-900 py-20">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <Badge className="mb-5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30">For Businesses</Badge>
+          <h2 className="text-4xl font-bold text-white mb-5 leading-tight">Grow Your Business on {branding.logoText}</h2>
+          <p className="text-gray-400 mb-8 leading-relaxed max-w-2xl mx-auto">
+            Join hundreds of verified vendors reaching millions of buyers across Africa and beyond. List your tours, hotels, cars, land, or properties today.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+            {[
+              { icon: TrendingUp, title: "Reach More Buyers", desc: "Access a global audience actively searching for your services every day." },
+              { icon: CheckCircle, title: "Secure Payments", desc: "Receive payments via M-Pesa and bank transfer, fully managed by the platform." },
+              { icon: Globe, title: "Analytics & Insights", desc: "Track performance, bookings, and revenue with real-time dashboards." },
+            ].map(b => (
+              <div key={b.title} className="bg-white/5 border border-white/10 rounded-xl p-5 text-left">
+                <b.icon className="w-6 h-6 text-emerald-400 mb-3" />
+                <h4 className="text-white font-semibold mb-1">{b.title}</h4>
+                <p className="text-gray-400 text-sm">{b.desc}</p>
+              </div>
+            ))}
+          </div>
+          <Link to={createPageUrl("VendorPortal")}>
+            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl px-10 py-3 text-base font-semibold">
+              <Users className="w-5 h-5 mr-2" /> Become a Vendor
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Partners */}
+      <section className="bg-white py-14 border-t border-gray-100">
+        <div className="max-w-6xl mx-auto px-4">
+          <p className="text-center text-sm font-semibold text-gray-400 uppercase tracking-widest mb-8">Trusted Partners & Integrations</p>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-14">
+            {[
+              { name: "Safaricom", color: "text-green-600", bg: "bg-green-50", icon: "ðŸ“¡" },
+              { name: "NCBA Bank", color: "text-blue-700", bg: "bg-blue-50", icon: "ðŸ¦" },
+              { name: "KCB Group", color: "text-red-600", bg: "bg-red-50", icon: "ðŸ¦" },
+              { name: "M-Pesa", color: "text-green-700", bg: "bg-green-50", icon: "ðŸ’š" },
+              { name: "Equity Bank", color: "text-purple-700", bg: "bg-purple-50", icon: "ðŸ›ï¸" },
+              { name: "Kenya Airways", color: "text-red-700", bg: "bg-red-50", icon: "âœˆï¸" },
+              { name: "KTDA", color: "text-emerald-700", bg: "bg-emerald-50", icon: "ðŸŒ¿" },
+              { name: "Cooperative Bank", color: "text-indigo-700", bg: "bg-indigo-50", icon: "ðŸ¤" },
+            ].map(p => (
+              <div key={p.name} className={`flex items-center gap-2 px-5 py-2.5 rounded-full ${p.bg} border border-gray-100 hover:shadow-md transition-shadow`}>
+                <span className="text-lg">{p.icon}</span>
+                <span className={`font-bold text-sm ${p.color}`}>{p.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-emerald-600 py-20">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold text-white mb-5">Ready to Explore the Global Marketplace?</h2>
+          <p className="text-emerald-100 mb-8 text-lg">Join thousands of buyers and hundreds of verified vendors on {branding.logoText}.</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to={createPageUrl("Search")}>
+              <Button className="bg-white text-emerald-700 hover:bg-gray-100 px-8 rounded-xl font-semibold text-base">Start Exploring</Button>
+            </Link>
+            <Link to={createPageUrl("VendorPortal")}>
+              <Button variant="outline" className="border-white text-white hover:bg-white/10 px-8 rounded-xl font-semibold text-base">List Your Service</Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+

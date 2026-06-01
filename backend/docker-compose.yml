@@ -1,0 +1,197 @@
+version: '3.8'
+
+services:
+  # ==================== DATABASES ====================
+  postgres:
+    image: postgres:15-alpine
+    container_name: globalhub-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: globalhub_auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - globalhub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: globalhub-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - globalhub-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: globalhub-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    networks:
+      - globalhub-network
+
+  # ==================== EUREKA SERVER ====================
+  eureka-server:
+    build: ./globalhub-eureka
+    container_name: globalhub-eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - globalhub-network
+    depends_on:
+      - postgres
+
+  # ==================== API GATEWAY ====================
+  api-gateway:
+    build: ./globalhub-gateway
+    container_name: globalhub-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+    environment:
+      - SPR_PROFILES_ACTIVE=docker
+
+  # ==================== AUTH SERVICE ====================
+  auth-service:
+    build: ./globalhub-auth-service
+    container_name: globalhub-auth-service
+    ports:
+      - "8081:8081"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/globalhub_auth
+
+  # ==================== USER SERVICE ====================
+  user-service:
+    build: ./globalhub-user-service
+    container_name: globalhub-user-service
+    ports:
+      - "8082:8082"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+
+  # ==================== VENDOR SERVICE ====================
+  vendor-service:
+    build: ./globalhub-vendor-service
+    container_name: globalhub-vendor-service
+    ports:
+      - "8083:8083"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+
+  # ==================== PRODUCT SERVICE ====================
+  product-service:
+    build: ./globalhub-product-service
+    container_name: globalhub-product-service
+    ports:
+      - "8084:8084"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+
+  # ==================== HOTEL SERVICE ====================
+  hotel-service:
+    build: ./globalhub-hotel-service
+    container_name: globalhub-hotel-service
+    ports:
+      - "8085:8085"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+
+  # ==================== PROPERTY SERVICE ====================
+  property-service:
+    build: ./globalhub-property-service
+    container_name: globalhub-property-service
+    ports:
+      - "8086:8086"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+
+  # ==================== TOUR SERVICE ====================
+  tour-service:
+    build: ./globalhub-tour-service
+    container_name: globalhub-tour-service
+    ports:
+      - "8087:8087"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+
+  # ==================== ORDER SERVICE ====================
+  order-service:
+    build: ./globalhub-order-service
+    container_name: globalhub-order-service
+    ports:
+      - "8088:8088"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+
+  # ==================== PAYMENT SERVICE ====================
+  payment-service:
+    build: ./globalhub-payment-service
+    container_name: globalhub-payment-service
+    ports:
+      - "8089:8089"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+
+  # ==================== NOTIFICATION SERVICE ====================
+  notification-service:
+    build: ./globalhub-notification-service
+    container_name: globalhub-notification-service
+    ports:
+      - "8090:8090"
+    networks:
+      - globalhub-network
+    depends_on:
+      - eureka-server
+      - postgres
+      - rabbitmq
+
+networks:
+  globalhub-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

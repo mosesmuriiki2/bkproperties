@@ -1,0 +1,206 @@
+# NiaHubX Docker Compose Configuration
+# Complete microservices deployment
+
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: niahubx-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Password@224
+      MYSQL_DATABASE: globalhub
+      MYSQL_USER: niahubx
+      MYSQL_PASSWORD: NiaHubX@2024
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./backend/database-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/create-super-admin.sql:/docker-entrypoint-initdb.d/02-admin.sql
+      - ./backend/add-sample-properties.sql:/docker-entrypoint-initdb.d/03-properties.sql
+    networks:
+      - niahubx-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pPassword@224"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Eureka Service Discovery
+  eureka:
+    build:
+      context: ./backend/globalhub-eureka
+      dockerfile: Dockerfile
+    container_name: niahubx-eureka
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - niahubx-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./backend/globalhub-auth-service
+      dockerfile: Dockerfile
+    container_name: niahubx-auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/globalhub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Password@224
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      JWT_SECRET: NiaHubXSecretKey2024ForJWTTokenGenerationAndValidation
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - niahubx-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Property Service
+  property-service:
+    build:
+      context: ./backend/globalhub-property-service
+      dockerfile: Dockerfile
+    container_name: niahubx-property-service
+    ports:
+      - "7086:7086"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/globalhub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Password@224
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      FILE_UPLOAD_DIR: /app/uploads
+    volumes:
+      - property-uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - niahubx-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Vendor Service
+  vendor-service:
+    build:
+      context: ./backend/globalhub-vendor-service
+      dockerfile: Dockerfile
+    container_name: niahubx-vendor-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/globalhub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Password@224
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      FILE_UPLOAD_DIR: /app/uploads/vendor-documents
+    volumes:
+      - vendor-uploads:/app/uploads/vendor-documents
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - niahubx-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # API Gateway
+  gateway:
+    build:
+      context: ./backend/globalhub-gateway
+      dockerfile: Dockerfile
+    container_name: niahubx-gateway
+    ports:
+      - "9096:9096"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+    depends_on:
+      eureka:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      property-service:
+        condition: service_healthy
+      vendor-service:
+        condition: service_healthy
+    networks:
+      - niahubx-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9096/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: niahubx-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    networks:
+      - niahubx-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+networks:
+  niahubx-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
+  property-uploads:
+    driver: local
+  vendor-uploads:
+    driver: local

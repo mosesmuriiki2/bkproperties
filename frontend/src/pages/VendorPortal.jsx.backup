@@ -1,0 +1,147 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Upload, BarChart2, BookOpen, Settings, CheckCircle, Zap, Globe, Shield, Plus, Users, DollarSign, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const plans = [
+  { name: "Basic Portal", price: 49, color: "border-gray-200", features: ["Up to 10 listings", "Booking management", "Basic analytics", "Email support"] },
+  { name: "Professional", price: 99, color: "border-emerald-500 ring-2 ring-emerald-500", badge: "Popular", features: ["Up to 50 listings", "Full booking & payment system", "Advanced analytics", "Priority support", "Vendor profile page"] },
+  { name: "Enterprise API", price: 199, color: "border-blue-500", features: ["Unlimited listings via API", "Custom API integration", "Revenue sharing model", "Dedicated account manager", "White-label options"] },
+];
+
+const mockListings = [
+  { id: 1, title: "Masai Mara Safari – 3 Days", status: "active", views: 1240, bookings: 32, revenue: 28480, category: "Tours" },
+  { id: 2, title: "Executive Suite Room", status: "active", views: 876, bookings: 18, revenue: 5760, category: "Hotels" },
+  { id: 3, title: "Toyota Landcruiser Hire", status: "pending_review", views: 0, bookings: 0, revenue: 0, category: "Cars" },
+];
+
+export default function VendorPortal() {
+  const [registered, setRegistered] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [form, setForm] = useState({ company: "", email: "", phone: "", type: "", plan: "" });
+  const [uploadForm, setUploadForm] = useState({ title: "", category: "", price: "", description: "" });
+  const [uploadDone, setUploadDone] = useState(false);
+
+  if (registered) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-3xl p-10 max-w-md w-full text-center shadow-xl border">
+          <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5">
+            <CheckCircle className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Application Received!</h2>
+          <p className="text-gray-500 mb-5">
+            Thank you for applying. Our team will review your application and you will receive an email with your login credentials <strong>within 24 hours</strong> upon approval.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700 text-left mb-6">
+            <p className="font-semibold mb-2">What happens next:</p>
+            <ul className="space-y-1">
+              <li>✅ Team reviews your application</li>
+              <li>✅ Upon approval, email with login link sent</li>
+              <li>✅ Log in with your credentials</li>
+              <li>✅ Change your temporary password on first login</li>
+            </ul>
+          </div>
+          <Link to={createPageUrl("Home")}>
+            <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">Back to Home</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Hero */}
+        <div className="bg-gradient-to-br from-gray-900 to-emerald-900 py-24 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="mb-5 bg-emerald-500/20 text-emerald-300 border-emerald-500/30">🏢 Vendor Portal</Badge>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-5">Grow Your Business on MarketaGlobal</h1>
+            <p className="text-gray-300 text-lg max-w-2xl mx-auto">Join 340+ verified vendors. Reach millions of buyers globally through the most powerful aggregator marketplace.</p>
+          </div>
+        </div>
+
+        {/* Integration types */}
+        <div className="max-w-5xl mx-auto px-4 py-16">
+          <h2 className="text-2xl font-bold text-center mb-10">Choose Your Integration Model</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+            <div className="bg-white rounded-2xl p-6 border-2 border-blue-200 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mb-4"><Zap className="w-6 h-6 text-blue-600" /></div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">API Integration</h3>
+              <p className="text-gray-500 mb-4">Already have your own platform? Connect via our REST API. We drive buyers to you while you manage bookings on your system.</p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                {["Real-time inventory sync", "Your booking system handles transactions", "Revenue sharing model", "E.g. Bonfire Adventures, SafariBookings"].map(f => (
+                  <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500 shrink-0" />{f}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-white rounded-2xl p-6 border-2 border-emerald-300 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mb-4"><Globe className="w-6 h-6 text-emerald-600" /></div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Vendor Portal</h3>
+              <p className="text-gray-500 mb-4">No platform? No problem. Use our full-featured portal to manage listings, bookings, and receive payments directly.</p>
+              <ul className="space-y-2 text-sm text-gray-600">
+                {["Upload & manage listings", "Full booking & payment system", "Automatic content verification", "Analytics dashboard"].map(f => (
+                  <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />{f}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Pricing */}
+          <h2 className="text-2xl font-bold text-center mb-8">Pricing Plans</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {plans.map(p => (
+              <div key={p.name} className={`bg-white rounded-2xl p-6 border-2 ${p.color} relative`}>
+                {p.badge && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white">{p.badge}</Badge>}
+                <h3 className="font-bold text-gray-900 text-lg mb-1">{p.name}</h3>
+                <p className="text-3xl font-extrabold text-gray-900 mb-4">USD {p.price}<span className="text-sm text-gray-400 font-normal">/month</span></p>
+                <ul className="space-y-2 mb-6">
+                  {p.features.map(f => <li key={f} className="flex items-center gap-2 text-sm text-gray-600"><CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />{f}</li>)}
+                </ul>
+                <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => { setForm(f => ({ ...f, plan: p.name })); }}>
+                  Choose {p.name}
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {/* Registration form */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border max-w-lg mx-auto">
+            <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Register as a Vendor</h3>
+            <div className="space-y-4">
+              <Input placeholder="Company / Business Name" value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} />
+              <Input type="email" placeholder="Business Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+              <Input placeholder="Phone Number" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+              <Select onValueChange={v => setForm(f => ({ ...f, type: v }))}>
+                <SelectTrigger><SelectValue placeholder="Service Category" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tours">Tours & Adventures</SelectItem>
+                  <SelectItem value="hotels">Hotels & Lodges</SelectItem>
+                  <SelectItem value="cars">Cars (Sale/Hire)</SelectItem>
+                  <SelectItem value="land">Land</SelectItem>
+                  <SelectItem value="properties">Houses & Properties</SelectItem>
+                  <SelectItem value="vehicles">Tourist Vehicles</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={form.plan} onValueChange={v => setForm(f => ({ ...f, plan: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select Plan" /></SelectTrigger>
+                <SelectContent>
+                  {plans.map(p => <SelectItem key={p.name} value={p.name}>{p.name} – USD {p.price}/mo</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => setRegistered(true)}>
+                <Shield className="w-4 h-4 mr-2" /> Submit Application
+              </Button>
+              <p className="text-xs text-gray-400 text-center">Applications are reviewed within 24 hours. You will receive an email with login credentials upon approval.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+}
