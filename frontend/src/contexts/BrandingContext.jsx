@@ -5,10 +5,17 @@ const BrandingContext = createContext();
 
 export const BrandingProvider = ({ children }) => {
   const [branding, setBranding] = useState({
-    logo: "🏘️",
+    logo: "/logo.png",
     logoText: "BK Properties",
-    primaryColor: "#16a34a",
-    secondaryColor: "#000000",
+    primaryColor: "#0ea5e9",
+    secondaryColor: "#1e293b",
+    social: {
+      facebook: "https://facebook.com/bkproperties",
+      twitter: "https://twitter.com/bkproperties",
+      instagram: "https://instagram.com/bkproperties",
+      linkedin: "https://linkedin.com/company/bkproperties",
+      youtube: "https://youtube.com/@bkproperties",
+    },
   });
 
   const [loading, setLoading] = useState(true);

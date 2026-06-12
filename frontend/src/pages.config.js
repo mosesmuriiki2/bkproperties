@@ -50,6 +50,7 @@
 import About from './pages/About';
 import AdminAnalytics from './pages/AdminAnalytics';
 import AdminVendors from './pages/AdminVendors';
+import Blog from './pages/Blog';
 import Cars from './pages/Cars';
 import Home from './pages/Home';
 import Hotels from './pages/Hotels';
@@ -73,6 +74,7 @@ export const PAGES = {
     "About": About,
     "AdminAnalytics": AdminAnalytics,
     "AdminVendors": AdminVendors,
+    "Blog": Blog,
     "Cars": Cars,
     "Home": Home,
     "Hotels": Hotels,

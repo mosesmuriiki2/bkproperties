@@ -282,10 +282,17 @@ export const getBrandingConfig = async () => {
       setTimeout(
         () =>
           resolve({
-            logo: "🌍",
+            logo: "/logo.png",
             logoText: "BK Properties",
-            primaryColor: "#10b981",
-            secondaryColor: "#06b6d4",
+            primaryColor: "#0ea5e9",
+            secondaryColor: "#1e293b",
+            social: {
+              facebook: "https://facebook.com/bkproperties",
+              twitter: "https://twitter.com/bkproperties",
+              instagram: "https://instagram.com/bkproperties",
+              linkedin: "https://linkedin.com/company/bkproperties",
+              youtube: "https://youtube.com/@bkproperties",
+            },
           }),
         100
       );
@@ -299,10 +306,17 @@ export const getBrandingConfig = async () => {
   } catch (error) {
     console.error("Error fetching branding:", error);
     return {
-      logo: "🌍",
+      logo: "/logo.png",
       logoText: "BK Properties",
-      primaryColor: "#10b981",
-      secondaryColor: "#06b6d4",
+      primaryColor: "#0ea5e9",
+      secondaryColor: "#1e293b",
+      social: {
+        facebook: "https://facebook.com/bkproperties",
+        twitter: "https://twitter.com/bkproperties",
+        instagram: "https://instagram.com/bkproperties",
+        linkedin: "https://linkedin.com/company/bkproperties",
+        youtube: "https://youtube.com/@bkproperties",
+      },
     };
   }
 };

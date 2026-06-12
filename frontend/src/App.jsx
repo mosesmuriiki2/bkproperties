@@ -10,6 +10,7 @@ import ConsumerDashboard from './pages/ConsumerDashboard';
 import SupportLogin from './pages/SupportLogin';
 import Properties from './pages/Properties';
 import PropertyDetail from './pages/PropertyDetail';
+import BlogPost from './pages/BlogPost';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -84,6 +85,13 @@ const AuthenticatedApp = () => {
       <Route path="/property/:id" element={
         <LayoutWrapper currentPageName="property-detail">
           <PropertyDetail />
+        </LayoutWrapper>
+      } />
+
+      {/* Blog routes with layout */}
+      <Route path="/blog/:slug" element={
+        <LayoutWrapper currentPageName="blog-post">
+          <BlogPost />
         </LayoutWrapper>
       } />
 
